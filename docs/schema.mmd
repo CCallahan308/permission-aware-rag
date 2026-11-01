@@ -1,0 +1,68 @@
+erDiagram
+    direction LR
+
+    hospital_tenants ||..o{ hospital_users : tenant_id
+    hospital_tenants ||..o{ documents : tenant_id
+    hospital_tenants ||..o{ document_chunks : tenant_id
+    documents ||..o{ document_chunks : document_id
+
+    hospital_tenants {
+        uuid id PK
+        varchar name "100 characters"
+        varchar subdomain UK "50 characters"
+        timestamptz created_at
+    }
+
+    hospital_users {
+        uuid id PK
+        uuid tenant_id FK
+        varchar email UK "255 characters"
+        varchar role "physician, nurse, billing_specialist, auditor"
+        int clearance_level "1 through 4"
+        timestamptz created_at
+    }
+
+    documents {
+        uuid id PK
+        uuid tenant_id FK
+        varchar title "255 characters"
+        varchar document_type "four permitted types"
+        int classification_level "1 through 4"
+        varchar[] allowed_roles
+        timestamptz created_at
+    }
+
+    document_chunks {
+        uuid id PK
+        uuid document_id FK
+        uuid tenant_id FK
+        int chunk_index
+        text content
+        vector embedding "384 dimensions"
+        varchar[] allowed_roles
+        int classification_level
+        timestamptz created_at
+    }
+
+    retrieval_audit_log {
+        bigserial id PK
+        timestamptz event_time
+        uuid tenant_id "logical reference; no FK"
+        uuid user_id "logical reference; no FK"
+        varchar user_role "50 characters"
+        varchar query_text_sha256 "64 characters"
+        text filter_applied
+        uuid[] retrieved_chunk_ids "logical references; no FK"
+        numeric execution_duration_ms "precision 8, scale 2; milliseconds"
+        varchar decision "PERMIT, EMPTY, DENY"
+        varchar previous_record_hash "64 characters"
+        varchar record_hash "64 characters"
+    }
+
+    schema_migrations {
+        text name PK "applied migration filename"
+    }
+
+    %% The four relationship lines represent declared foreign keys.
+    %% Child rows have independent UUID primary keys; relationships are non-identifying.
+    %% Audit UUID references intentionally have no relationship lines: no FKs exist.

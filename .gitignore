@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.env
+.streamlit/secrets.toml
+.venv/
+venv/
+*.log
+/prompts.txt

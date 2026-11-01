@@ -1,0 +1,5 @@
+# Small hosting environment for the public synthetic-data demonstration.
+streamlit==1.57.0
+pydantic==2.13.3
+SQLAlchemy==2.0.49
+pandas==2.3.3

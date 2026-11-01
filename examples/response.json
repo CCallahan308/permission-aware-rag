@@ -1,0 +1,19 @@
+{
+  "query": "Who owns the data dictionary?",
+  "total_matched": 1,
+  "chunks": [
+    {
+      "chunk_id": "a1000000-0000-4000-8000-000000000001",
+      "document_id": "d1000000-0000-4000-8000-000000000001",
+      "content": "The data dictionary owner is the Operations team. The next review date is 2026-11-15.",
+      "similarity": 1.0
+    }
+  ],
+  "audit_record_hash": null,
+  "assembled_context": "<context_window>\n<document_chunk id=\"a1000000-0000-4000-8000-000000000001\" index=\"0\">The data dictionary owner is the Operations team. The next review date is 2026-11-15.</document_chunk>\n</context_window>",
+  "answer": "The data dictionary owner is the Operations team. [a1000000-0000-4000-8000-000000000001]\nThe next review date is 2026-11-15. [a1000000-0000-4000-8000-000000000001]",
+  "cited_chunk_ids": [
+    "a1000000-0000-4000-8000-000000000001"
+  ],
+  "citation_verification_passed": true
+}

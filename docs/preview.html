@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Permission-aware RAG, a CGC Labs engineering study of database authorization, retrieval, and cited responses using synthetic hospital records.">
+  <title>Permission-aware RAG | CGC Labs engineering study</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800&amp;display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&amp;display=swap">
+  <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f6f8f4;
+      --white: #ffffff;
+      --soft: #eaf0e9;
+      --ink: #142b24;
+      --muted: #526259;
+      --line: #d3ddd4;
+      --accent: #d5f36b;
+      --display: 'Cabinet Grotesk', Arial, sans-serif;
+      --body: 'General Sans', Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 108px; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); font: 16px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, p, figure { margin: 0; }
+    h1, h2, h3 { font-family: var(--display); font-weight: 800; line-height: 1.05; letter-spacing: -.045em; }
+    h1 { font-size: clamp(64px, 7.25vw, 100px); line-height: .98; letter-spacing: -.055em; }
+    h2 { font-size: clamp(36px, 4.6vw, 64px); }
+    h3 { font-size: 28px; }
+    a { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+    a:hover { text-decoration: underline; text-underline-offset: 5px; }
+    img { display: block; max-width: 100%; height: auto; }
+    :focus-visible { outline: 3px solid #637d18; outline-offset: 5px; }
+    ::selection { background: var(--accent); color: var(--ink); }
+    .container { width: min(1280px, calc(100% - 96px)); margin-inline: auto; }
+    .skip-link { position: fixed; left: 16px; top: 8px; z-index: 100; padding: 12px 20px; background: var(--accent); transform: translateY(-160%); }
+    .skip-link:focus { transform: translateY(0); }
+    .nav { position: sticky; top: 0; z-index: 20; background: var(--canvas); border-bottom: 1px solid var(--line); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 28px; min-height: 86px; }
+    .logo { display: inline-flex; align-items: center; min-height: 44px; flex-shrink: 0; }
+    .logo img { width: 118px; }
+    .nav-links { display: flex; align-items: center; gap: 28px; margin-left: auto; }
+    .nav-links a { display: flex; align-items: center; min-height: 44px; font-size: 13px; font-weight: 500; border-bottom: 2px solid transparent; }
+    .nav-links a:hover { border-color: var(--ink); text-decoration: none; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 24px; min-height: 50px; padding: 12px 20px; border: 1px solid var(--ink); border-radius: 4px; background: var(--ink); color: var(--white); font-size: 14px; font-weight: 600; line-height: 1.4; transition: background .18s, color .18s; }
+    .button:hover { background: #2e4a3f; text-decoration: none; }
+    .nav-cta { min-height: 44px; padding: 10px 16px; font-size: 12px; }
+    .arrow { font-size: 20px; line-height: 1; }
+    .label { display: block; font-size: 11px; line-height: 1.5; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+    .hero { padding: 48px 0 42px; }
+    .hero-topline { display: flex; justify-content: space-between; gap: 24px; align-items: center; margin-bottom: 38px; }
+    .hero-topline .label::before { content: ''; display: inline-block; width: 7px; height: 7px; background: var(--ink); margin-right: 10px; }
+    .studio-note { font-size: 11px; color: var(--muted); }
+    .hero-grid { display: grid; grid-template-columns: 1.12fr 1fr; align-items: center; gap: 36px; }
+    .hero-copy { min-width: 0; }
+    .accent-word { position: relative; display: inline-block; isolation: isolate; }
+    .accent-word::after { content: ''; position: absolute; z-index: -1; left: 0; right: 0; bottom: .04em; height: .2em; background: var(--accent); }
+    .lead { max-width: 470px; margin-top: 26px; font-size: 19px; line-height: 1.55; color: var(--muted); }
+    .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 28px; margin-top: 30px; }
+    .text-action { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 50px; border-bottom: 1px solid var(--ink); font-size: 14px; font-weight: 600; }
+    .text-action:hover { color: var(--muted); text-decoration: none; }
+    .scope { margin-top: 20px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .route-board { min-width: 0; display: flex; flex-direction: column; gap: 22px; padding: 24px; background: var(--soft); border-radius: 4px; }
+    .board-label, .board-foot { display: flex; justify-content: space-between; gap: 20px; }
+    .board-label { font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; }
+    .board-label span:last-child { color: var(--muted); flex-shrink: 0; }
+    .route-board img { width: 100%; }
+    .board-foot { border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: 10px; }
+    .proof-strip { display: grid; grid-template-columns: 1.25fr 1fr 1fr 1fr; gap: 26px; align-items: center; margin-top: 48px; padding-top: 26px; border-top: 1px solid var(--line); }
+    .proof-intro { color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .proof-intro strong { color: var(--ink); font-weight: 600; }
+    .proof-item { display: flex; align-items: center; gap: 16px; }
+    .proof-value { font: 800 42px/1 var(--display); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+    .proof-item p { max-width: 130px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .section { padding: 80px 0; border-top: 1px solid var(--line); }
+    .section-soft { background: var(--soft); }
+    .section-intro { display: grid; grid-template-columns: 1fr 2.1fr; gap: 32px; align-items: start; margin-bottom: 40px; }
+    .section-intro > .label { padding-top: 8px; }
+    .intro-copy { max-width: 740px; }
+    .intro-copy p { margin-top: 22px; max-width: 660px; color: var(--muted); }
+    .graphic { overflow-x: auto; border: 1px solid var(--line); background: var(--canvas); }
+    .graphic img { width: 100%; max-width: none; }
+    .architecture-graphic img { min-width: 800px; }
+    .output-graphic img { min-width: 720px; }
+    .schema-graphic img { min-width: 800px; }
+    figcaption { margin-top: 12px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .mobile-scroll-note { display: none; }
+    .deliverables { margin-top: 42px; border-top: 1px solid var(--line); }
+    .deliverable { display: grid; grid-template-columns: .22fr 1fr 1.5fr; gap: 30px; align-items: start; padding: 27px 0; border-bottom: 1px solid var(--line); }
+    .item-number { padding-top: 5px; color: var(--muted); font-size: 11px; font-weight: 500; }
+    .deliverable p { color: var(--muted); font-size: 15px; max-width: 580px; }
+    .deliverable p + p { margin-top: 12px; }
+    .inline-links { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 28px; margin-top: 20px; }
+    .inline-links a { display: inline-flex; align-items: center; gap: 16px; min-height: 44px; border-bottom: 1px solid var(--ink); font-size: 13px; font-weight: 500; }
+    .example-commands { display: grid; grid-template-columns: 1fr 2.1fr; gap: 32px; align-items: start; margin-top: 32px; }
+    .example-commands p { color: var(--muted); font-size: 13px; }
+    pre { margin: 0; padding: 18px 22px; overflow-x: auto; background: var(--canvas); border: 1px solid var(--line); }
+    code { font: 13px/1.8 Consolas, 'Liberation Mono', monospace; }
+    .evidence { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .evidence .label { color: var(--accent); }
+    .evidence .intro-copy p { color: #c5d1c7; }
+    .evidence-body { display: grid; grid-template-columns: 1fr 2.1fr; gap: 32px; }
+    .test-environment { margin: 0; font-size: 12px; }
+    .test-environment div { padding: 14px 0; border-top: 1px solid #496055; }
+    .test-environment dt { color: #c5d1c7; }
+    .test-environment dd { margin: 4px 0 0; font-weight: 500; }
+    .scope-note { padding-left: 22px; border-left: 2px solid var(--accent); color: #c5d1c7; font-size: 15px; max-width: 650px; }
+    .document-directory { margin-top: 30px; border-top: 1px solid #496055; }
+    .document-link { display: grid; grid-template-columns: 1fr 24px; gap: 20px; align-items: center; min-height: 64px; padding: 15px 0; border-bottom: 1px solid #496055; font-size: 14px; font-weight: 500; }
+    .document-link:hover { color: var(--accent); text-decoration: none; }
+    footer { padding: 36px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+    .footer-brand { display: flex; align-items: center; gap: 28px; }
+    .footer-brand img { width: 92px; }
+    .footer-brand p { font-size: 12px; color: var(--muted); }
+    .footer-links { display: flex; align-items: center; gap: 26px; }
+    .footer-links a { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; }
+    @media (max-width: 1100px) {
+      .hero-grid { gap: 28px; }
+      h1 { font-size: clamp(60px, 7.2vw, 82px); }
+      .route-board { padding: 20px; gap: 18px; }
+      .nav-links { gap: 22px; }
+      .proof-strip { gap: 18px; }
+      .proof-item { gap: 12px; }
+      .proof-value { font-size: 36px; }
+    }
+    @media (max-width: 900px) {
+      .container { width: calc(100% - 48px); }
+      .nav-cta { display: none; }
+      .hero { padding-top: 38px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+      h1 { font-size: clamp(64px, 10.5vw, 90px); max-width: 760px; }
+      .hero-copy { max-width: 730px; }
+      .lead { max-width: 570px; }
+      .route-board { max-width: none; padding: 24px; }
+      .route-board img { max-width: 620px; margin-inline: auto; }
+      .proof-strip { grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+      .proof-intro { grid-column: 1 / -1; }
+      .section { padding: 64px 0; }
+      .section-intro, .evidence-body { grid-template-columns: .7fr 2fr; gap: 26px; }
+      .deliverable { grid-template-columns: 32px 1fr 1.45fr; gap: 22px; }
+      .example-commands { grid-template-columns: .7fr 2fr; gap: 26px; }
+    }
+    @media (max-width: 600px) {
+      html { scroll-padding-top: 134px; }
+      .container { width: calc(100% - 40px); }
+      .nav-inner { min-height: 116px; gap: 20px; padding-block: 12px; }
+      .logo img { width: 98px; }
+      .nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+      .nav-links a { min-height: 44px; font-size: 12px; }
+      .hero { padding: 32px 0 36px; }
+      .hero-topline { align-items: flex-start; margin-bottom: 30px; gap: 15px; }
+      .hero-topline .label { font-size: 10px; letter-spacing: .08em; }
+      .studio-note { font-size: 10px; max-width: 92px; text-align: right; }
+      h1 { font-size: clamp(42px, 12.6vw, 72px); }
+      h2 { font-size: 38px; }
+      h3 { font-size: 27px; }
+      .lead { font-size: 18px; margin-top: 22px; }
+      .hero-actions { gap: 18px; margin-top: 26px; }
+      .button { padding-inline: 16px; gap: 20px; }
+      .text-action { font-size: 13px; gap: 14px; }
+      .route-board { padding: 18px; gap: 16px; }
+      .board-label { font-size: 9px; gap: 12px; }
+      .board-foot { font-size: 9px; gap: 12px; }
+      .proof-strip { gap: 24px 16px; margin-top: 34px; }
+      .proof-item { display: block; }
+      .proof-value { font-size: 36px; }
+      .proof-item p { margin-top: 8px; font-size: 11px; max-width: 100px; }
+      .section { padding: 54px 0; }
+      .section-intro, .evidence-body, .example-commands { grid-template-columns: 1fr; gap: 22px; }
+      .section-intro { margin-bottom: 28px; }
+      .section-intro > .label { padding-top: 0; }
+      .intro-copy p { margin-top: 20px; font-size: 15px; }
+      .deliverables { margin-top: 30px; }
+      .deliverable { grid-template-columns: 28px 1fr; gap: 14px; padding-block: 24px; }
+      .deliverable h3 { grid-column: 2; }
+      .deliverable > div { grid-column: 2; }
+      .item-number { grid-row: 1 / 3; }
+      .mobile-scroll-note { display: block; margin-bottom: 6px; font-weight: 500; color: var(--ink); }
+      .inline-links { gap: 10px 22px; }
+      .example-commands { gap: 12px; margin-top: 24px; }
+      pre { padding: 14px 16px; }
+      code { font-size: 12px; }
+      .evidence-body { gap: 30px; }
+      .test-environment { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+      .scope-note { padding-left: 18px; }
+      .footer-inner, .footer-brand { align-items: flex-start; }
+      .footer-inner { flex-direction: column; gap: 22px; }
+      .footer-brand { gap: 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="logo" href="https://cgclabs.org/" aria-label="CGC Labs, home"><img src="assets/cgc-labs-logo.png" width="314" height="160" alt="CGC Labs"></a>
+      <nav class="nav-links" aria-label="Project sections"><a href="#architecture">Architecture</a><a href="#output">Output</a><a href="#schema">Schema</a><a href="#evidence">Evidence</a></nav>
+      <a class="button nav-cta" href="../README.md">Read the README <span class="arrow" aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero">
+      <div class="container">
+        <div class="hero-topline"><span class="label">Independent engineering study</span><span class="studio-note">Christian Callahan / CGC Labs</span></div>
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <h1>Permission-<br>aware <span class="accent-word">RAG</span></h1>
+            <p class="lead">A retrieval service that applies database permissions before selecting the records an answer can use.</p>
+            <div class="hero-actions"><a class="button" href="#architecture">Explore the architecture <span class="arrow" aria-hidden="true">→</span></a><a class="text-action" href="#output">Inspect the output <span class="arrow" aria-hidden="true">↗</span></a></div>
+            <p class="scope">Python / FastAPI / PostgreSQL / pgvector<br>Synthetic hospital records. Deterministic generation.</p>
+          </div>
+          <figure class="route-board">
+            <div class="board-label"><span>Authorized request path</span><span>RAG / 01</span></div>
+            <picture><source media="(max-width: 600px)" srcset="assets/route-mobile.svg"><img src="assets/route.svg" width="560" height="330" alt="Tenant, role, and clearance feed a PostgreSQL RLS boundary, then authorized context and an independent tenant audit chain."></picture>
+            <figcaption class="board-foot"><span>Synthetic records</span><span>Workflow illustration</span></figcaption>
+          </figure>
+        </div>
+        <div class="proof-strip" aria-label="Recorded verification results">
+          <p class="proof-intro"><strong>Recorded test run</strong><br>PostgreSQL 18.4 · pgvector 0.8.7</p>
+          <div class="proof-item"><span class="proof-value">106</span><p>tests passed in the recorded run</p></div>
+          <div class="proof-item"><span class="proof-value">10</span><p>adversarial security vectors</p></div>
+          <div class="proof-item"><span class="proof-value">20</span><p>simultaneous audited requests</p></div>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="architecture">
+      <div class="container">
+        <div class="section-intro"><span class="label">01 / Architecture</span><div class="intro-copy"><h2>Permissions before ranking.</h2><p>A close vector match can still belong to another tenant or exceed a user's clearance. This service applies permissions in PostgreSQL before ranking authorized records.</p></div></div>
+        <figure>
+          <div class="graphic architecture-graphic" tabindex="0" role="region" aria-label="Request architecture diagram; scroll horizontally on narrow screens"><img src="assets/architecture.svg" alt="JWT validation, RLS retrieval, bounded context, and citation checks, with independent tenant audit chains." width="1200" height="818" loading="lazy"></div>
+          <figcaption><span class="mobile-scroll-note">Scroll the diagram to inspect the full request path.</span>Exact ranking of the authorized candidate set. The shared HNSW index is retained but is not used by this retrieval path.</figcaption>
+        </figure>
+        <div class="deliverables">
+          <div class="deliverable"><span class="item-number">01</span><h3>Authorization</h3><div><p>Tenant, roles, and clearance bind to transaction-local settings. Retrieval rejects superuser and BYPASSRLS connections.</p></div></div>
+          <div class="deliverable"><span class="item-number">02</span><h3>Tenant audit chains</h3><div><p>Stable tenant-row locks serialize writes within a tenant. Separate tenants maintain independent SHA-256 continuity.</p></div></div>
+          <div class="deliverable"><span class="item-number">03</span><h3>Bounded context</h3><div><p>The assembler includes complete chunks within a conservative byte budget. It quarantines known injection signatures and escapes XML boundaries.</p></div></div>
+          <div class="deliverable"><span class="item-number">04</span><h3>Citation checks</h3><div><p>The verifier checks syntax, assertion coverage, and authorized source membership. Empty usable context bypasses generation. These checks do not establish clinical accuracy.</p></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="section section-soft" id="output">
+      <div class="container">
+        <div class="section-intro"><span class="label">02 / Output</span><div class="intro-copy"><h2>Generated output.</h2><p>The offline example runs the real context assembler and generator against a short operations note. Full UUID citations remain in the JSON response.</p></div></div>
+        <figure>
+          <div class="graphic output-graphic" tabindex="0" role="region" aria-label="Generated output example; scroll horizontally on narrow screens"><img src="assets/output.svg" alt="The Operations team owns the data dictionary. The source is identified, and citation membership checks pass." width="1200" height="650" loading="lazy"></div>
+          <figcaption><span class="mobile-scroll-note">Scroll to inspect the source and generated response.</span>Source 01 is a display reference to the full chunk UUID. No database retrieval or audit write runs in this example.</figcaption>
+        </figure>
+        <div class="example-commands"><p>Run the offline example.</p><pre><code>python -m examples.generate_response
+python -m examples.generate_response --json</code></pre></div>
+        <div class="inline-links"><a href="../examples/response.json">Inspect the JSON <span aria-hidden="true">↗</span></a><a href="output.md">Read the failure outcomes <span aria-hidden="true">↗</span></a><a href="../examples/generate_response.py">View the example source <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+    <section class="section" id="schema">
+      <div class="container">
+        <div class="section-intro"><span class="label">03 / Data model</span><div class="intro-copy"><h2>Storage boundaries.</h2><p>Documents and chunks carry their own tenant and access metadata. Four declared foreign keys describe ownership; audit references remain independent.</p></div></div>
+        <figure>
+          <div class="graphic schema-graphic" tabindex="0" role="region" aria-label="Database schema diagram; scroll horizontally on narrow screens"><img src="assets/schema.svg" alt="Tenant, user, document, chunk, audit, and migration tables. Solid lines show declared foreign keys." width="1200" height="1140" loading="lazy"></div>
+          <figcaption><span class="mobile-scroll-note">Scroll to inspect the tables and relationships.</span>Key-column view. The schema reference documents exact column types, indexes, and constraints.</figcaption>
+        </figure>
+        <div class="inline-links"><a href="schema.md">Read the schema reference <span aria-hidden="true">↗</span></a><a href="schema.mmd">Mermaid source <span aria-hidden="true">↗</span></a><a href="../migrations/001_initial_schema.sql">Inspect the SQL <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+    <section class="section evidence" id="evidence">
+      <div class="container">
+        <div class="section-intro"><span class="label">04 / Evidence</span><div class="intro-copy"><h2>Verification record.</h2><p>The recorded run passed 106 tests on PostgreSQL 18.4 with pgvector 0.8.7. The concurrency test committed exactly 20 audit events and verified both tenant chains.</p><p>Additional regressions check that a locked tenant does not block another tenant and that invalid citations produce a chained DENY event.</p></div></div>
+        <div class="evidence-body">
+          <dl class="test-environment"><div><dt>Database</dt><dd>PostgreSQL 18.4</dd></div><div><dt>Vector extension</dt><dd>pgvector 0.8.7</dd></div><div><dt>Records</dt><dd>Synthetic hospital data</dd></div><div><dt>Generation</dt><dd>Deterministic provider</dd></div></dl>
+          <div><p class="scope-note">This is an independent engineering demonstration using synthetic data. PostgreSQL 16 compatibility and latency targets remain unverified. The test results do not establish clinical safety or healthcare compliance.</p><div class="document-directory"><a class="document-link" href="verification.md"><span>Verification record</span><span class="arrow" aria-hidden="true">↗</span></a><a class="document-link" href="operations.md"><span>Setup and operating limits</span><span class="arrow" aria-hidden="true">↗</span></a><a class="document-link" href="portfolio.md"><span>Portfolio copy</span><span class="arrow" aria-hidden="true">↗</span></a><a class="document-link" href="github-about.md"><span>GitHub About copy</span><span class="arrow" aria-hidden="true">↗</span></a></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="container footer-inner"><div class="footer-brand"><a class="logo" href="https://cgclabs.org/" aria-label="CGC Labs, home"><img src="assets/cgc-labs-logo.png" width="314" height="160" alt="CGC Labs"></a><p>Permission-aware RAG<br>CGC Labs / Engineering study</p></div><nav class="footer-links" aria-label="Project resources"><a href="https://cgclabs.org/">CGC Labs ↗</a><a href="../README.md">Project README ↗</a></nav></div></footer>
+</body>
+</html>

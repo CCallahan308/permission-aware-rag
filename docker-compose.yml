@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: multitenant_rag_db
+    environment:
+      POSTGRES_DB: multitenant_rag
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a local database administrator password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d multitenant_rag"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: multitenant_rag_api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set a non-superuser NOBYPASSRLS runtime connection URL}
+      MIGRATION_DATABASE_URL: ${MIGRATION_DATABASE_URL:?Set the migration owner connection URL}
+      JWT_SECRET: ${JWT_SECRET:?Set a private signing key with at least 32 characters}
+      ENVIRONMENT: production
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:
